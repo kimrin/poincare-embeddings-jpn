@@ -1,4 +1,4 @@
-name: poincare
+name: poincare-jpn
 channels:
 - anaconda
 - pytorch
