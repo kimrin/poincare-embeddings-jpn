@@ -9,7 +9,7 @@ import sys
 
 
 
-def main(poincare=None, w2v300=None):
+def main(poincare=None, w2v300=None, out=''):
     poincare_sorted = sorted(poincare, key=lambda x: (x['experiment_setup']['category'] + ':' + x['experiment_setup']['subcategory']))
     w2v300_sorted = sorted(w2v300, key=lambda x: (x['experiment_setup']['category'] + ':' + x['experiment_setup']['subcategory']))
     for t in range(len(poincare)):
@@ -24,7 +24,7 @@ def main(poincare=None, w2v300=None):
         plt.barh(t * 2 + 1, acc_w, label=p['experiment_setup']['subcategory'], color="#FF5B70")
 
     plt.legend(['poincare', 'w2v300'])
-    plt.savefig("results2.pdf", bbox_inches="tight")
+    plt.savefig(out, bbox_inches="tight")
 
     print('poincare: len=%d' % len(poincare))
     # print(poincare[0])
@@ -43,4 +43,4 @@ if __name__ == '__main__':
     with open(sys.argv[2], 'rb') as pf2:
         w2v300 = pickle.load(pf2)
 
-    main(poincare=poincare, w2v300=w2v300)
+    main(poincare=poincare, w2v300=w2v300, out=sys.argv[3])
