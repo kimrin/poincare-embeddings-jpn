@@ -54,7 +54,8 @@ class LinearOffsetPoincare(vecto.benchmarks.analogy.solvers.PairWise):
         lambda_x = self.la(vec_x)
         lambda_y = self.la(vec_y)
 
-        d = np.arccosh(1.0 + lambda_x * lambda_y * (np.dot(vec_x - vec_y, vec_x - vec_y) * 0.5))
+        d = np.arccosh(1.0 + lambda_x * lambda_y *
+                       (np.dot(vec_x - vec_y, vec_x - vec_y) * 0.5))
 
         return d
 
@@ -64,19 +65,15 @@ class LinearOffsetPoincare(vecto.benchmarks.analogy.solvers.PairWise):
         return scores
 
     def compute_scores(self, vec_a, vec_a_prime, vec_b):
-        v_0 = np.zeros_like(vec_a)
-        vec_ab_p = self.d_poincare_ball(v_0, vec_a + vec_b) * (vec_a + vec_b)
-        vec_a_prime_p = self.d_poincare_ball(v_0, vec_a_prime) * vec_a_prime
-        vec_b_prime_predicted_p = self.d_poincare_ball(vec_ab_p, vec_a_prime_p) * (vec_a_prime_p - vec_ab_p)
-
-        vec_ab = vec_a + vec_b
-        vec_b_prime_predicted = self.normed(vec_a_prime - vec_ab)
+        # v_0 = np.zeros_like(vec_a)
+        # vec_ab_p = self.d_poincare_ball(v_0, vec_a + vec_b) * (vec_a + vec_b)
+        # vec_a_prime_p = self.d_poincare_ball(v_0, vec_a_prime) * vec_a_prime
+        # vec_b_prime_predicted_p = self.d_poincare_ball(vec_ab_p, vec_a_prime_p) * (vec_a_prime_p - vec_ab_p)
+        vec_b_prime_predicted = vec_a_prime - vec_a + vec_b
+        vec_b_prime_predicted = self.normed(vec_b_prime_predicted)
         scores_eu = self.get_most_similar_fast_non_cache(vec_b_prime_predicted)
-
         # vec_b_prime_predicted = self.normed(vec_b_prime_predicted_p)
-
         # scores = self.get_most_similar_fast_non_cache(vec_b_prime_predicted_p)
-
         # return scores, vec_b_prime_predicted_p
         return scores_eu, vec_b_prime_predicted
 
