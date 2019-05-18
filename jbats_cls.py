@@ -68,11 +68,17 @@ class LinearOffsetPoincare(vecto.benchmarks.analogy.solvers.PairWise):
         vec_ab_p = self.d_poincare_ball(v_0, vec_a + vec_b) * (vec_a + vec_b)
         vec_a_prime_p = self.d_poincare_ball(v_0, vec_a_prime) * vec_a_prime
         vec_b_prime_predicted_p = self.d_poincare_ball(vec_ab_p, vec_a_prime_p) * (vec_a_prime_p - vec_ab_p)
+
+        vec_ab = vec_a + vec_b
+        vec_b_prime_predicted = self.normed(vec_a_prime - vec_ab)
+        scores_eu = self.get_most_similar_fast_non_cache(vec_b_prime_predicted)
+
         # vec_b_prime_predicted = self.normed(vec_b_prime_predicted_p)
 
-        scores = self.get_most_similar_fast_non_cache(vec_b_prime_predicted_p)
+        # scores = self.get_most_similar_fast_non_cache(vec_b_prime_predicted_p)
 
-        return scores, vec_b_prime_predicted_p
+        # return scores, vec_b_prime_predicted_p
+        return scores_eu, vec_b_prime_predicted
 
 
 class AnalogyPoincare(vecto.benchmarks.analogy.analogy.Analogy):
