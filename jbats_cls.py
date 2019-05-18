@@ -64,6 +64,11 @@ class LinearOffsetPoincare(vecto.benchmarks.analogy.solvers.PairWise):
         scores = (scores + 1) / 2
         return scores
 
+    def get_most_similar_non_cache_non_norm(self, v):
+        scores = v @ self.embs.matrix.T
+        scores = (scores + 1) / 2
+        return scores
+
     def compute_scores(self, vec_a, vec_a_prime, vec_b):
         v_0 = np.zeros_like(vec_a)
         # vec_ab_p = self.d_poincare_ball(v_0, vec_a + vec_b) * (vec_a + vec_b)
@@ -71,8 +76,8 @@ class LinearOffsetPoincare(vecto.benchmarks.analogy.solvers.PairWise):
         # vec_b_prime_predicted_p = self.d_poincare_ball(vec_ab_p, vec_a_prime_p) * (vec_a_prime_p - vec_ab_p)
         vec_b_prime_predicted = vec_a_prime - vec_a + vec_b
         vec_b_prime_predicted = vec_b_prime_predicted * self.d_poincare_ball(v_0, vec_b_prime_predicted)
-        vec_b_prime_predicted = self.normed(vec_b_prime_predicted)
-        scores_eu = self.get_most_similar_fast_non_cache(vec_b_prime_predicted)
+        scores_eu = self.get_most_similar_non_cache_non_norm(vec_b_prime_predicted)
+            # scores_eu = self.get_most_similar_fast_non_cache(vec_b_prime_predicted)
         # vec_b_prime_predicted = self.normed(vec_b_prime_predicted_p)
         # scores = self.get_most_similar_fast_non_cache(vec_b_prime_predicted_p)
         # return scores, vec_b_prime_predicted_p
