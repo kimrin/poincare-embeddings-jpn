@@ -65,11 +65,12 @@ class LinearOffsetPoincare(vecto.benchmarks.analogy.solvers.PairWise):
         return scores
 
     def compute_scores(self, vec_a, vec_a_prime, vec_b):
-        # v_0 = np.zeros_like(vec_a)
+        v_0 = np.zeros_like(vec_a)
         # vec_ab_p = self.d_poincare_ball(v_0, vec_a + vec_b) * (vec_a + vec_b)
         # vec_a_prime_p = self.d_poincare_ball(v_0, vec_a_prime) * vec_a_prime
         # vec_b_prime_predicted_p = self.d_poincare_ball(vec_ab_p, vec_a_prime_p) * (vec_a_prime_p - vec_ab_p)
         vec_b_prime_predicted = vec_a_prime - vec_a + vec_b
+        vec_b_prime_predicted = vec_b_prime_predicted * self.d_poincare_ball(v_0, vec_b_prime_predicted)
         vec_b_prime_predicted = self.normed(vec_b_prime_predicted)
         scores_eu = self.get_most_similar_fast_non_cache(vec_b_prime_predicted)
         # vec_b_prime_predicted = self.normed(vec_b_prime_predicted_p)
