@@ -47,7 +47,7 @@ def select_method_poincare(key):
 class LinearOffsetPoincare(vecto.benchmarks.analogy.solvers.PairWise):
     def la(self, vec):
         if np.dot(vec, vec) == 1.0:
-            return 2.0
+            return nan
         return 2.0 / (1.0 - np.dot(vec, vec))
 
     def d_poincare_ball(self, vec_x, vec_y):
@@ -58,14 +58,19 @@ class LinearOffsetPoincare(vecto.benchmarks.analogy.solvers.PairWise):
 
         return d
 
+    def get_most_similar_fast_non_cache(self, v):
+        scores = self.normed(v) @ self.embs.matrix.T
+        scores = (scores + 1) / 2
+        return scores
+
     def compute_scores(self, vec_a, vec_a_prime, vec_b):
         v_0 = np.zeros_like(vec_a)
         vec_ab_p = self.d_poincare_ball(v_0, vec_a + vec_b) * (vec_a + vec_b)
         vec_a_prime_p = self.d_poincare_ball(v_0, vec_a_prime) * vec_a_prime
         vec_b_prime_predicted_p = self.d_poincare_ball(vec_ab_p, vec_a_prime_p) * (vec_a_prime_p - vec_ab_p)
-        vec_b_prime_predicted = self.normed(vec_b_prime_predicted_p)
+        # vec_b_prime_predicted = self.normed(vec_b_prime_predicted_p)
 
-        scores = self.get_most_similar_fast(vec_b_prime_predicted_p)
+        scores = self.get_most_similar_fast_non_cache(vec_b_prime_predicted_p)
 
         return scores, vec_b_prime_predicted_p
 
@@ -76,8 +81,8 @@ class AnalogyPoincare(vecto.benchmarks.analogy.analogy.Analogy):
         self.solver = select_method_poincare(
             self.method)(self.embs, exclude=self.exclude)
 
-        if self.normalize:
-            self.embs.normalize()
+        # if self.normalize:
+        #     self.embs.normalize()
         self.embs.cache_normalized_copy()
 
         results = []
