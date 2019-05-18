@@ -47,7 +47,7 @@ def select_method_poincare(key):
 class LinearOffsetPoincare(vecto.benchmarks.analogy.solvers.PairWise):
     def la(self, vec):
         if np.dot(vec, vec) == 1.0:
-            return nan
+            return 100.0
         return 2.0 / (1.0 - np.dot(vec, vec))
 
     def d_poincare_ball(self, vec_x, vec_y):
