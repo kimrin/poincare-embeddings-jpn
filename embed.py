@@ -18,6 +18,7 @@ from hype.rsgd import RiemannianSGD
 from hype.lorentz import LorentzManifold
 from hype.euclidean import EuclideanManifold
 from hype.poincare import PoincareManifold
+from hype.euclidean import TranseManifold
 import sys
 import json
 import torch.multiprocessing as mp
@@ -31,7 +32,8 @@ np.random.seed(42)
 MANIFOLDS = {
     'lorentz': LorentzManifold,
     'euclidean': EuclideanManifold,
-    'poincare': PoincareManifold
+    'poincare': PoincareManifold,
+    'transe': TranseManifold
 }
 
 
