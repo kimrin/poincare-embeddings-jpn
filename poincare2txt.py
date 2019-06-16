@@ -8,8 +8,6 @@ import torch
 import os
 import sys
 import timeit
-import vecto.embeddings
-import vecto.benchmarks.analogy.analogy
 
 
 def main(binfile='', outfilelist=[]):
