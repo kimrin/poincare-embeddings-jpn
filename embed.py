@@ -19,7 +19,6 @@ from hype.lorentz import LorentzManifold
 from hype.euclidean import EuclideanManifold
 from hype.poincare import PoincareManifold
 from hype.euclidean import TranseManifold
-import os
 import sys
 import json
 import torch.multiprocessing as mp
@@ -33,30 +32,25 @@ np.random.seed(42)
 MANIFOLDS = {
     'lorentz': LorentzManifold,
     'euclidean': EuclideanManifold,
-    'poincare': PoincareManifold,
-    'transe': TranseManifold
+    'poincare': PoincareManifold
 }
 
 
 def async_eval(adj, q, logQ, opt):
     manifold = MANIFOLDS[opt.manifold]()
-    logging.info('async eval starts.')
     while True:
-        logging.info('waiting queue...')
         temp = q.get()
         if temp is None:
-            logging.info('terminate evaluation queue...')
             return
 
         if not q.empty():
             continue
 
         epoch, elapsed, loss, pth = temp
-        logging.info('epoch = %d, elapsed=%f, loss=%f, pth=%s' % (epoch, elapsed, loss, pth))
         chkpnt = th.load(pth, map_location='cpu')
         lt = chkpnt['embeddings']
 
-        meanrank, maprank = eval_reconstruction(adj, lt, manifold.distance, workers=10)
+        meanrank, maprank = eval_reconstruction(adj, lt, manifold.distance)
         sqnorms = manifold.pnorm(lt)
         lmsg = {
             'epoch': epoch,
@@ -68,15 +62,6 @@ def async_eval(adj, q, logQ, opt):
             'mean_rank': meanrank,
             'map_rank': maprank
         }
-        logging.info('save lmsg to %s.', pth)
-        th.save({
-            'model': chkpnt['model'],
-            'embeddings': lt,
-            'epoch': epoch,
-            'manifold': opt.manifold,
-            'lmsg': lmsg
-        }, pth)
-
         logQ.put((lmsg, pth))
 
 
@@ -219,25 +204,21 @@ def main():
         manifold.normalize(lt)
 
         checkpoint.path = f'{opt.checkpoint}.{epoch}'
-        logging.info('checkpoint.save. w/o lmsg. to %s.' % checkpoint.path)
         checkpoint.save({
             'model': model.state_dict(),
             'embeddings': lt,
             'epoch': epoch,
-            'manifold': opt.manifold
+            'manifold': opt.manifold,
         })
-        # logging.info('put Q.')
-        # controlQ.put((epoch, elapsed, loss, checkpoint.path))
-        # logging.info('put Q is done.')
+
+        controlQ.put((epoch, elapsed, loss, checkpoint.path))
 
         while not logQ.empty():
             lmsg, pth = logQ.get()
-            logging.info('move %s to %s.' % (pth, opt.checkpoint))
-            shutil.move(pth, opt.checkpoint)
+            # shutil.move(pth, opt.checkpoint)
             log.info(f'json_stats: {json.dumps(lmsg)}')
 
     control.checkpoint = True
-    controlQ.put(None)
     model = model.to(device)
     if hasattr(model, 'w_avg'):
         model.w_avg = model.w_avg.to(device)
@@ -254,10 +235,11 @@ def main():
     else:
         train.train(device, model, data, optimizer, opt, log, ctrl=control,
             progress=not opt.quiet)
+    controlQ.put(None)
     control_thread.join()
     while not logQ.empty():
         lmsg, pth = logQ.get()
-        shutil.move(pth, opt.checkpoint)
+        # shutil.move(pth, opt.checkpoint)
         log.info(f'json_stats: {json.dumps(lmsg)}')
 
 
