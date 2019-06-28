@@ -215,7 +215,7 @@ def main():
 
         while not logQ.empty():
             lmsg, pth = logQ.get()
-            shutil.move(pth, opt.checkpoint)
+            # shutil.move(pth, opt.checkpoint)
             log.info(f'json_stats: {json.dumps(lmsg)}')
 
     control.checkpoint = True
