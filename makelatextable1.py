@@ -10,11 +10,9 @@ import json
 
 PRE_STRING = r"""
 \begin{table}[htb]
-  \begin{tabular}{|l|c||r|r|r|r|r|r|} \hline
-"""
+  \begin{tabular}{|l|c||r|r|r|r|r|r|} \hline"""
 
-POST_STRING = r"""
-  \end{tabular}
+POST_STRING = r"""  \end{tabular}
 \end{table}
 """
 
@@ -30,7 +28,8 @@ def main(jsonfile=''):
     dimensions = [5, 10, 20, 50, 100, 200]
 
     print(PRE_STRING)
-    print('  manifold & RANK/MAP & ' + ' & '.join(list(map(str, dimensions))) + r' \\ \hline')
+    print('  manifold & RANK/MAP & ' +
+          ' & '.join(list(map(str, dimensions))) + r' \\ \hline')
     for mani in manifolds:
         pre1 = '  %s & RANK & ' % mani
         pre2 = ' & MAP & '
