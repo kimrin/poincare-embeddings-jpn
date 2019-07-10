@@ -9,6 +9,9 @@ import torch as th
 import numpy as np
 import logging
 import argparse
+import sys
+import json
+import shutil
 from hype.sn import Embedding, initialize
 from hype.adjacency_matrix_dataset import AdjacencyDataset
 from hype import train
@@ -19,10 +22,8 @@ from hype.lorentz import LorentzManifold
 from hype.euclidean import EuclideanManifold
 from hype.poincare import PoincareManifold
 from hype.euclidean import TranseManifold
-import sys
-import json
 import torch.multiprocessing as mp
-import shutil
+from torch.optim.lr_scheduler import StepLR
 
 
 th.manual_seed(42)
@@ -117,9 +118,14 @@ def main():
     parser.add_argument('-burnin_multiplier', default=0.01, type=float)
     parser.add_argument('-neg_multiplier', default=1.0, type=float)
     parser.add_argument('-quiet', action='store_true', default=False)
-    parser.add_argument('-lr_type', choices=['scale', 'constant'], default='constant')
+    parser.add_argument('-lr_type', choices=['scheduled', 'scale', 'constant'], default='constant')
     parser.add_argument('-train_threads', type=int, default=1,
                         help='Number of threads to use in training')
+    parser.add_argument('-lr_step_size', type=int, default=30,
+                        help='number of step size to use scheduled lr.')
+    parser.add_argument('-lr_gamma', type=float, default=0.1,
+                        help='gamma of scheduled lr.')
+
     opt = parser.parse_args()
 
     # setup debugging and logigng
@@ -168,6 +174,9 @@ def main():
 
     # setup optimizer
     optimizer = RiemannianSGD(model.optim_params(manifold), lr=opt.lr)
+    lr_scheduler = None
+    if opt.lr_type == 'scheduled':
+        lr_scheduler = StepLR(optimizer=optimizer, step_size=opt.lr_step_size, gamma=opt.lr_gamma)
 
     # setup checkpoint
     checkpoint = LocalCheckpoint(
@@ -233,8 +242,13 @@ def main():
             threads[-1].start()
         [t.join() for t in threads]
     else:
-        train.train(device, model, data, optimizer, opt, log, ctrl=control,
-            progress=not opt.quiet)
+        if opt.lr_type == 'scheduled':
+            train.train(device, model, data, lr_scheduler, opt, log, ctrl=control,
+                        progress=not opt.quiet)
+        else:
+            train.train(device, model, data, optimizer, opt, log, ctrl=control,
+                        progress=not opt.quiet)
+
     controlQ.put(None)
     control_thread.join()
     while not logQ.empty():
