@@ -20,21 +20,37 @@ pcall_base = ['python3', 'embed.py']
 #                            '-dampening':  '1.0',
 #                            '-batchsize': '10'}
 
-pcall_base_options_dict = {'-epochs': '1000',
+# pcall_base_options_dict = {'-epochs': '1000',
+#                            '-negs': '50',
+#                            '-ndproc': '4',
+#                            '-eval_each': '100',
+#                            '-fresh': '',
+#                            '-sparse': '',
+#                            '-gpu': '0',
+#                            '-burnin_multiplier': '0.01',
+#                            '-neg_multiplier': '0.1',
+#                            '-lr_type': 'constant',
+#                            '-train_threads': '1',
+#                            '-dampening':  '1.0',
+#                            '-batchsize': '10'}
+pcall_base_options_dict = {'-epochs': '50',
                            '-negs': '50',
                            '-ndproc': '4',
-                           '-eval_each': '100',
+                           '-eval_each': '10',
                            '-fresh': '',
                            '-sparse': '',
                            '-gpu': '0',
                            '-burnin_multiplier': '0.01',
                            '-neg_multiplier': '0.1',
-                           '-lr_type': 'constant',
+                           '-lr_type': 'scheduled',
                            '-train_threads': '1',
                            '-dampening':  '1.0',
-                           '-batchsize': '10'}
+                           '-batchsize': '30',
+                           '-lr_step_size': '15',
+                           '-lr_gamma': '0.25'}
 # pcall_option_poincare = {'-lr': '0.3'}
-pcall_option_poincare = {'-lr': '1.0'}
+# pcall_option_poincare = {'-lr': '1.0'}
+pcall_option_poincare = {'-lr': '3.0'}
 pcall_option_lorentz = {'-lr': '0.5', '-no-maxnorm': ''}
 # pcall_option_lorentz = {'-lr': '0.5'}
 
@@ -67,12 +83,12 @@ def main():
     # dimensions = [5, 10, 20, 50, 100, 200]
     manifolds = ['poincare']
     # manifolds = ['lorentz']
-    dimensions = [20]
+    dimensions = [3]
     # dataset = './wordnet/noun_closure_synsets_jp.csv'
     dataset = './wordnet/noun_closure_jp.csv'
     for mani in manifolds:
         for dim in dimensions:
-            outfile = './pojwords20/emb_%s_%d.bin' % (mani, dim)
+            outfile = './pojwords3/emb_%s_%d.bin' % (mani, dim)
             cmd_python3 = make_command_poincare(
                 manifold=mani, dim=str(dim), dset=dataset, checkpoint=outfile)
             print(cmd_python3)

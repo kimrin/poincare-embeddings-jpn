@@ -176,7 +176,7 @@ def main():
     optimizer = RiemannianSGD(model.optim_params(manifold), lr=opt.lr)
     lr_scheduler = None
     if opt.lr_type == 'scheduled':
-        lr_scheduler = StepLR(optimizer=optimizer, step_size=opt.lr_step_size, gamma=opt.lr_gamma)
+        lr_scheduler = StepLR(optimizer, opt.lr_step_size, gamma=opt.lr_gamma)
 
     # setup checkpoint
     checkpoint = LocalCheckpoint(
@@ -242,12 +242,8 @@ def main():
             threads[-1].start()
         [t.join() for t in threads]
     else:
-        if opt.lr_type == 'scheduled':
-            train.train(device, model, data, lr_scheduler, opt, log, ctrl=control,
-                        progress=not opt.quiet)
-        else:
             train.train(device, model, data, optimizer, opt, log, ctrl=control,
-                        progress=not opt.quiet)
+                        progress=not opt.quiet, lr_scheduler=lr_scheduler)
 
     controlQ.put(None)
     control_thread.join()
