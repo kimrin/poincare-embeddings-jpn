@@ -26,7 +26,8 @@ def train(
         queue=None,
         ctrl=None,
         checkpointer=None,
-        progress=False
+        progress=False,
+        lr_scheduler=None
 ):
     if isinstance(data, torch_data.Dataset):
         loader = torch_data.DataLoader(data, batch_size=opt.batchsize,
@@ -63,7 +64,11 @@ def train(
             preds = model(inputs)
             loss = model.loss(preds, targets, size_average=True)
             loss.backward()
-            optimizer.step(lr=lr, counts=counts)
+            if opt.lr_type == 'scheduled':
+                optimizer.step(lr=lr, counts=counts)
+                lr_scheduler.step()
+            else:
+                optimizer.step(lr=lr, counts=counts)
             epoch_loss[i_batch] = loss.cpu().item()
         if rank == 1:
             if hasattr(data, 'avg_queue_size'):
