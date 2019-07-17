@@ -33,7 +33,7 @@ pcall_base = ['python3', 'embed.py']
 #                            '-train_threads': '1',
 #                            '-dampening':  '1.0',
 #                            '-batchsize': '10'}
-pcall_base_options_dict = {'-epochs': '50',
+pcall_base_options_dict = {'-epochs': '100',
                            '-negs': '50',
                            '-ndproc': '4',
                            '-eval_each': '10',
@@ -45,7 +45,7 @@ pcall_base_options_dict = {'-epochs': '50',
                            '-lr_type': 'scheduled',
                            '-train_threads': '1',
                            '-dampening':  '1.0',
-                           '-batchsize': '30',
+                           '-batchsize': '50',
                            '-lr_step_size': '15',
                            '-lr_gamma': '0.25'}
 # pcall_option_poincare = {'-lr': '0.3'}
